@@ -4,13 +4,14 @@
 % Date: 
 % Work Log
 % Who               When
-% Xander & Nicole   02/28 10:45 am
+% Xander & Nicole   02/28 10:45 am - 12:15 pm
+% Xander, Mary, Nicole 02/03 2:30 - 5:00 pm
 %% Constants
 
 % Sampling Frequency
 fs = 44100; % kHz
 
-%% Treble boost
+%% Treble range
 
 % We are going to put LPF and HPF LTI systems in series to create a
 % bandpass filter. We are going to select cutoff frequency such that the
@@ -21,7 +22,7 @@ fs = 44100; % kHz
 
 % LPF Calculations
 
-f_lpf = 12000;
+f_lpf = 24000;
 
 R_lpf = 1000;
 
@@ -49,4 +50,36 @@ a_hpf = [1 1/tau_hpf];
 
 % System
 
+a = [1 1./tau_hpf + 1./tau_lpf (1/tau_hpf).*(1/tau_lpf)];
 
+b = [0 1/tau_lpf 0];
+
+sys = tf(b,a);
+
+bode(sys);
+
+%% 
+
+%Sampling rate.
+delta_t = 1/44100; %Hz
+
+%Time vector
+t = 0:delta_t:15*tau_lpf;
+
+% DT: Impulse
+
+x_imp = zeros(size(t));
+
+x_imp(1) = 1;
+
+% DT: Capacitive load
+
+h_c = filter(delta_t/tau_lpf,[1 (delta_t/tau_lpf)-1],x_imp);
+
+% DT: Resistive Load
+
+h_r = filter([1 -1],[1 (delta_t/tau_hpf)-1],x_imp);
+
+h = conv(h_c,h_r);
+figure()
+stem(h);
