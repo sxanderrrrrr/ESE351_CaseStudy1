@@ -22,11 +22,11 @@ fs = 44100; % kHz
 
 % LPF Calculations
 
-f_lpf = 24000;
+f_lpf = 12000;
 
 R_lpf = 1000;
 
-C_lpf = 1/(2.*pi.*f_lpf.*R_lpf);
+C_lpf = 1/(2.*pi.*f_lpf.*R_lpf);% Online.
 
 tau_lpf = R_lpf.*C_lpf;
 
@@ -36,7 +36,7 @@ a_lpf = [1 1/tau_lpf];
 
 % HPF Calculations
 
-f_hpf = 2500;
+f_hpf = 5000;
 
 R_hpf = 1000;
 
@@ -54,32 +54,37 @@ a = [1 1./tau_hpf + 1./tau_lpf (1/tau_hpf).*(1/tau_lpf)];
 
 b = [0 1/tau_lpf 0];
 
-sys = tf(b,a);
+freqs(b,a);
 
-bode(sys);
+[sounddata, Fs] = audioread("sample-3s.mp3");
 
-%% 
+t = 0:1/Fs:(length(sounddata)-1)/Fs;
 
-%Sampling rate.
-delta_t = 1/44100; %Hz
+sound(sounddata, Fs);
 
-%Time vector
-t = 0:delta_t:15*tau_lpf;
+%%
+sounddata = sounddata';
+%%
 
-% DT: Impulse
+treble_test_1 = lsim(b,a,sounddata(1,:),t);
 
-x_imp = zeros(size(t));
+treble_test_2 = lsim(b,a,sounddata(2,:),t);
 
-x_imp(1) = 1;
+treble_test = cat(2,treble_test_1, treble_test_2);
 
-% DT: Capacitive load
+sound(treble_test, Fs);
+%%
+freqs(b,a);
 
-h_c = filter(delta_t/tau_lpf,[1 (delta_t/tau_lpf)-1],x_imp);
+%%
+a = conv(a,a);
 
-% DT: Resistive Load
+b = conv(b,b);
 
-h_r = filter([1 -1],[1 (delta_t/tau_hpf)-1],x_imp);
+treble_test_1 = lsim(b,a,sounddata(1,:)',t);
 
-h = conv(h_c,h_r);
-figure()
-stem(h);
+treble_test_2 = lsim(b,a,sounddata(2,:)',t);
+
+treble_test = cat(2,treble_test_1, treble_test_2);
+
+sound(treble_test, Fs);

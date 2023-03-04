@@ -4,13 +4,14 @@
 % Date: 
 % Work Log
 % Who               When
-% Xander & Nicole   02/28 10:45 am
+% Xander & Nicole   02/28 10:45 am - 12:15 pm
+% Xander, Mary, Nicole 02/03 2:30 - 5:00 pm
 %% Constants
 
 % Sampling Frequency
 fs = 44100; % kHz
 
-%% Treble boost
+%% Treble range
 
 % We are going to put LPF and HPF LTI systems in series to create a
 % bandpass filter. We are going to select cutoff frequency such that the
@@ -25,7 +26,7 @@ f_lpf = 12000;
 
 R_lpf = 1000;
 
-C_lpf = 1/(2.*pi.*f_lpf.*R_lpf);
+C_lpf = 1/(2.*pi.*f_lpf.*R_lpf);% Online.
 
 tau_lpf = R_lpf.*C_lpf;
 
@@ -35,7 +36,7 @@ a_lpf = [1 1/tau_lpf];
 
 % HPF Calculations
 
-f_hpf = 2500;
+f_hpf = 5000;
 
 R_hpf = 1000;
 
@@ -49,12 +50,39 @@ a_hpf = [1 1/tau_hpf];
 
 % System
 
-a = [1 1./tau_hpf + 1./tau_lpf (1/tau_hpf).^2];
+a = [1 1./tau_hpf + 1./tau_lpf (1/tau_hpf).*(1/tau_lpf)];
 
-b = [0 1/tau_hpf 0];
+b = [0 1/tau_lpf 0];
 
 sys = tf(b,a);
 
-bode(sys);
+freqs(b,a);
 
+%% 
+a = conv(a,a);
+b = conv(b,b);
 
+freqs(b,a);
+%% Sound Test
+
+[sounddata, Fs] = audioread("sample-3s.mp3");
+
+%%
+
+%t = 0:1/Fs:(length(sounddata)-1)/Fs;
+
+%sounddata = sounddata';
+
+treble_test_1 = lsim(b,a,sounddata(1,:),t);
+
+%%
+
+treble_test_2 = lsim(b,a,sounddata(2,:)',t);
+
+%%
+
+treble_test = cat(2,treble_test_1, treble_test_2);
+
+sound(treble_test, Fs);
+
+%lsim(b,a,)
