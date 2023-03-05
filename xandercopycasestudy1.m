@@ -7,10 +7,6 @@
 % Xander & Nicole   02/28 10:45 am - 12:15 pm
 % Xander, Mary, Nicole 02/03 2:30 - 5:00 pm
 % Xander, Mary, Nicole 02/04 10 am - 1:00 pm
-%% Constants
-
-% Sampling Frequency
-fs = 44100; % kHz
 
 %% Treble range
 
@@ -27,9 +23,9 @@ fs = 44100; % kHz
 % 250 Hz.
 
 f = [20,  250; 
-    250, 6000;
-    6000, 20000];
-%%
+    250, 10000;
+    10000, 20000];
+
 R = 1000;
 
 CL = [];
@@ -79,7 +75,7 @@ bass = [];
 midrange = [];
 
 for i = 1:2
-    out = lsim(B(1,:), A(1,:), sounddata(i,:),t);
+    out = lsim(B(3,:), A(3,:), sounddata(i,:),t);
     treble = cat(2,treble,out);
 end
 
@@ -87,33 +83,68 @@ treble = treble';
 
 for i = 1:2
     out = lsim(B(2,:), A(2,:), sounddata(i,:),t);
-    bass = cat(2,bass,out);
-end
-
-bass = bass';
-
-for i = 1:2
-    out = lsim(B(3,:), A(3,:), sounddata(i,:),t);
     midrange = cat(2,midrange,out);
 end
 
 midrange = midrange';
+
+for i = 1:2
+    out = lsim(B(1,:), A(1,:), sounddata(i,:),t);
+    bass = cat(2,bass,out);
+end
+
+bass = bass';
 % 1 - bass, 2 - midrange, 3 - treble
-Gain = [0 0 0];
+Gain = [0.1 0 0];
 
 output = (Gain(1,1).*bass) + (Gain(1,2).*midrange) + (Gain(1,3).*treble);
-%%
+%% 
 
+H = [];
+W = [];
+x_freqs = 2.*pi.*(0:length(sounddata(1,:))-1).*Fs./length(sounddata(1,:));
 for i = 1:length(f(:,1))
-    figure()
-    freqs(B(i,:),A(i,:));
+    [h, w] = freqs(B(i,:),A(i,:), x_freqs);
+    H = cat(1,H,h);
+    W = cat(1,W,w);
 end
 
 %%
 
-sound(sounddata, Fs)
+figure();
+hold on;
+semilogx(abs(H(1,:))),semilogx(abs(H(2,:))),semilogx(abs(H(3,:)));
+hold off;
+
+%% Analyzing The Input Signal
+
+Input_FFT = fft(sounddata(1,:))./(1/Fs);
+
+x_freqs = (0:length(sounddata(1,:))-1).*Fs./length(sounddata(1,:));
+%%
+figure()
+plot(x_freqs, abs(fft(output(1,:))./(1/Fs)));
+%%
+figure();
+plot(x_freqs, abs((Input_FFT)));
+
+%% 
+x_freqs = (0:length(sounddata(1,:))-1).*Fs./length(sounddata(1,:));
+figure();
+
+plot(x_freqs, abs(fft(treble(1,:))));
 
 %%
+x_freqs = (0:length(sounddata(1,:))-1).*Fs./length(sounddata(1,:));
 
-sound(output, Fs)
+
+b = [1 0];
+
+a = [1 1/TAU(3,1)];
+
+g = lsim(b,a,sounddata(1,:),t);
+
+figure();
+
+plot(x_freqs, abs(fft(g)./(1./Fs)));
 
