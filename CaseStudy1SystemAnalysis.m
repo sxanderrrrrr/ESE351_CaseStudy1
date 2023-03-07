@@ -1,12 +1,13 @@
-%% Dividing up frequency domain
+%% Case Study 1: System response analysis
 
-function soundSpectrum = frequencyParser(sounddata, Fs)
+% Creating a for loop to create a freqs plot for lower bass, ..., treble
+% responses. It takes the coefficients B and A for each system and makes a
+% plot.
 
-    t = 0:1/Fs:(length(sounddata)-1)/Fs;
 
-    sounddata = sounddata';
+% Question 2 a
 
-    % We are going to put LPF and HPF LTI systems in series to create a
+ % We are going to put LPF and HPF LTI systems in series to create a
     % bandpass filter. We are going to select cutoff frequency such that the
     % low end cut off and high end cut off keep treble frequencies at unity and
     % attenuate other signals.
@@ -18,10 +19,12 @@ function soundSpectrum = frequencyParser(sounddata, Fs)
     % f is frequency ranges in Hz. 
     % Each row is a diff range.
 
+    close all;
+
     f = [20,  250 %    Sub-Bass 
         250, 500; %    Bass
         500, 2000; %   Midrange
-        2000, 4000; %  Higher Midrange
+        2000, 6000; %  Higher Midrange
         6000, 20000];% Treble
     % We fix resistance and solve capacitance based off of the cut off
     % frequencies of the different ranges
@@ -66,13 +69,26 @@ function soundSpectrum = frequencyParser(sounddata, Fs)
 
     soundSpectrum = [];
 
+    H = 0;
+
     for k = 1:length(f(:,1))
-        for i = 1:2
-            out = lsim(B(k,:), A(k,:), sounddata(i,:),t);
-            soundSpectrum = cat(2,soundSpectrum,out);
-        end
+        h = freqs(B(k,:), A(k,:), 0:2.*pi*44100);
+        H = H + h;
+        figure("Name", " Preset" + k);
+        subplot(2,1,1), plot(0:2.*pi*44100, 20*log10(abs(h)));
+        subplot(2,1,2), plot(0:2.*pi*44100, angle(h));
+        sgtitle("Preset" + k);
+        for i = 1:2, subplot(2,1,i), set(gca,'XScale','log'), 
+        axis tight, end 
     end
 
-    soundSpectrum = soundSpectrum';
+    figure("Name", " Total Response");
+    subplot(2,1,1), plot(0:2.*pi*44100, 20*log10(abs(H)));
+    subplot(2,1,2), plot(0:2.*pi*44100, angle(H));
+    sgtitle("Total Response");
+    for i = 1:2, subplot(2,1,i), set(gca,'XScale','log'), 
+    axis tight, end 
 
-end
+% Question 2 c
+
+
