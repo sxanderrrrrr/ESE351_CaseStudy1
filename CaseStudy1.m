@@ -98,11 +98,6 @@ ylabel('|X(f)|')
 pause
 set(gca,'YScale','log')
 
-
-
-
-
-
 %% Input signal analysis
 
 

@@ -7,88 +7,98 @@
 
 % Question 2 a
 
- % We are going to put LPF and HPF LTI systems in series to create a
-    % bandpass filter. We are going to select cutoff frequency such that the
-    % low end cut off and high end cut off keep treble frequencies at unity and
-    % attenuate other signals.
+% We are going to put LPF and HPF LTI systems in series to create a
+% bandpass filter. We are going to select cutoff frequency such that the
+% low end cut off and high end cut off keep treble frequencies at unity and
+% attenuate other signals.
 
-    % The treble frequency fange is assume to be 6 kHz to 20 kHz.
+% The treble frequency fange is assume to be 6 kHz to 20 kHz.
 
-    % LPF Calculations
+% LPF Calculations
 
-    % f is frequency ranges in Hz. 
-    % Each row is a diff range.
+% f is frequency ranges in Hz. 
+% Each row is a diff range.
 
-    close all;
+close all;
 
-    f = [20,  250 %    Sub-Bass 
-        250, 500; %    Bass
-        500, 2000; %   Midrange
-        2000, 6000; %  Higher Midrange
-        6000, 20000];% Treble
-    % We fix resistance and solve capacitance based off of the cut off
-    % frequencies of the different ranges
+f = [20,  250 %    Sub-Bass 
+    250, 500; %    Bass
+    500, 2000; %   Midrange
+    2000, 6000; %  Higher Midrange
+    6000, 20000];% Treble
+% We fix resistance and solve capacitance based off of the cut off
+% frequencies of the different ranges
 
-    R = 1000;
+R = 1000;
 
-    % Array that contains the capacitance values for the many filters.
+% Array that contains the capacitance values for the many filters.
 
-    % Array that contains the capacitance values for the HPF.
-    CH = [];
+% Array that contains the capacitance values for the HPF.
+CH = [];
 
-    CL = [];
+CL = [];
 
-    % LPF and HPF Capacitance
+% LPF and HPF Capacitance
 
-    for i = 1:length(f(:,2))
-        ch = 1/(2.*pi.*f(i,1).*R);
-        CH = cat(1,CH,ch);
-        cl = 1/(2.*pi.*f(i,2).*R);
-        CL = cat(1,CL,cl);
-    end
+for i = 1:length(f(:,2))
+    ch = 1/(2.*pi.*f(i,1).*R);
+    CH = cat(1,CH,ch);
+    cl = 1/(2.*pi.*f(i,2).*R);
+    CL = cat(1,CL,cl);
+end
 
-    C = cat(2,CL,CH);
+C = cat(2,CL,CH);
 
-    TAU = R.*C;
+TAU = R.*C;
 
-    % Coefficients
+% Coefficients
 
-    B = [];
-    A = [];
+B = [];
+A = [];
 
-    for i = 1:length(f(:,1))
-        b = [0 1./TAU(i,1) 0];
-        a = [1 1./TAU(i,1) + 1./TAU(i,2) (1/TAU(i,1)).*(1/TAU(i,2))];
-        B = cat(1,B,b);
-        A = cat(1,A,a);
-    end
+for i = 1:length(f(:,1))
+    b = [0 1./TAU(i,1) 0];
+    a = [1 1./TAU(i,1) + 1./TAU(i,2) (1/TAU(i,1)).*(1/TAU(i,2))];
+    B = cat(1,B,b);
+    A = cat(1,A,a);
+end
 
 
-    % soundSpectrum contains the outputs of the sounddata after being sent
-    % through each bandpass filter.
+% soundSpectrum contains the outputs of the sounddata after being sent
+% through each bandpass filter.
 
-    soundSpectrum = [];
+soundSpectrum = [];
 
-    H = 0;
+H = 0;
 
-    for k = 1:length(f(:,1))
-        h = freqs(B(k,:), A(k,:), 0:2.*pi*44100);
-        H = H + h;
-        figure("Name", " Preset" + k);
-        subplot(2,1,1), plot(0:2.*pi*44100, 20*log10(abs(h)));
-        subplot(2,1,2), plot(0:2.*pi*44100, angle(h));
-        sgtitle("Preset" + k);
-        for i = 1:2, subplot(2,1,i), set(gca,'XScale','log'), 
-        axis tight, end 
-    end
-
-    figure("Name", " Total Response");
-    subplot(2,1,1), plot(0:2.*pi*44100, 20*log10(abs(H)));
-    subplot(2,1,2), plot(0:2.*pi*44100, angle(H));
-    sgtitle("Total Response");
+for k = 1:length(f(:,1))
+    h = freqs(B(k,:), A(k,:), 0:2.*pi*44100);
+    H = H + h;
+    figure("Name", " Preset" + k);
+    subplot(2,1,1), plot(0:2.*pi*44100, 20*log10(abs(h))), ylabel("Magnitude");
+    subplot(2,1,2), plot(0:2.*pi*44100, angle(h)), ylabel("Angle");
+    sgtitle("Preset" + k);
     for i = 1:2, subplot(2,1,i), set(gca,'XScale','log'), 
     axis tight, end 
+end
 
-% Question 2 c
+figure("Name", " Total Response");
+subplot(2,1,1), plot(0:2.*pi*44100, 20*log10(abs(H))), ylabel("Magnitude");
+subplot(2,1,2), plot(0:2.*pi*44100, angle(H)), ylabel("Angle");
+sgtitle("Total Response");
+for i = 1:2, subplot(2,1,i), set(gca,'XScale','log'), 
+axis tight, end 
 
+%% Question 2 c
 
+close all;
+
+t = 0: 1/44100:1;
+x = zeros(size(t));
+x(1) = 1;
+
+for k = 1:length(f(:,1))
+    result = lsim(B(k,:), A(k,:), x, t);
+    figure("Name", " Impulse response for freq range " + k);
+    plot(t(1:20), result(1:20)), xlabel("Time (seconds)");
+end
