@@ -6,83 +6,107 @@
 % Who               When
 % Xander & Nicole   02/28 10:45 am - 12:15 pm
 % Xander, Mary, Nicole 02/03 2:30 - 5:00 pm
-%% Constants
+% Xander, Mary, Nicole 02/04 10 am - 1:00 pm
+% Xander 02/07 8 am - ...
+%% Control Panel 
 
-% Sampling Frequency
-fs = 44100; % kHz
+filename = 'Space Station - Treble Cut.wav';
 
-%% Treble range
+% Sound profiles include: 1 - Treble boost, 2 - Bass boost, 3 - Unity, 4 -
+% Custom
+
+profile = 1;
+
+
+% ----------------------- USER NO TOUCHING BELOW HERE ---------------------
+
+% soundDataSpectrum is the sounddata after it has been filtered by the
+% various LPF - HPF systems. Rows 1 & 2 correspond to low bass. Rows 3&4
+% correspond to bass. Row 5&6 correspond to low midrange. Row 7&8
+% correspond to midrange. Row 9&10 correspond to treble.
+
+
+[soundDataSpectrum, Fs] = frequencyParser(filename);
+
+% profileOutput = soundProfiler(profile, soundDataSpectrum);
+
+sound(soundDataSpectrum(9:10, :), Fs);
+
+%% Dividing up frequency domain
+
+[sounddata, Fs] = audioread(filename);
+
+t = 0:1/Fs:(length(sounddata)-1)/Fs;
+
+sounddata = sounddata';
 
 % We are going to put LPF and HPF LTI systems in series to create a
 % bandpass filter. We are going to select cutoff frequency such that the
 % low end cut off and high end cut off keep treble frequencies at unity and
 % attenuate other signals.
 
-% The treble frequency fange is assume to be 5 kHz to 12 kHz.
+% The treble frequency fange is assume to be 6 kHz to 20 kHz.
 
 % LPF Calculations
 
-f_lpf = 12000;
+% f is frequency ranges in Hz. 
+% Each row is a diff range.
 
-R_lpf = 1000;
+f = [20,  250 %    Sub-Bass 
+    250, 500; %    Bass
+    500, 2000; %   Midrange
+    2000, 4000; %  Higher Midrange
+    6000, 20000];% Treble
+% We fix resistance and solve capacitance based off of the cut off
+% frequencies of the different ranges
 
-C_lpf = 1/(2.*pi.*f_lpf.*R_lpf);% Online.
+R = 1000;
 
-tau_lpf = R_lpf.*C_lpf;
+% Array that contains the capacitance values for the many filters.
 
-b_lpf = 1/tau_lpf;
+% Array that contains the capacitance values for the HPF.
+CH = [];
 
-a_lpf = [1 1/tau_lpf];
+CL = [];
 
-% HPF Calculations
+% LPF and HPF Capacitance
 
-f_hpf = 5000;
+for i = 1:length(f(:,2))
+    ch = 1/(2.*pi.*f(i,1).*R);
+    CH = cat(1,CH,ch);
+    cl = 1/(2.*pi.*f(i,2).*R);
+    CL = cat(1,CL,cl);
+end
 
-R_hpf = 1000;
+C = cat(2,CL,CH);
 
-C_hpf = 1/(2.*pi.*f_hpf.*R_hpf);
+TAU = R.*C;
 
-tau_hpf = R_hpf.*C_hpf;
+% Coefficients
 
-b_hpf = [1 0];
+B = [];
+A = [];
 
-a_hpf = [1 1/tau_hpf];
+for i = 1:length(f(:,1))
+    b = [0 1./TAU(i,1) 0];
+    a = [1 1./TAU(i,1) + 1./TAU(i,2) (1/TAU(i,1)).*(1/TAU(i,2))];
+    B = cat(1,B,b);
+    A = cat(1,A,a);
+end
 
-% System
+%% Applying the system to sounddata
 
-a = [1 1./tau_hpf + 1./tau_lpf (1/tau_hpf).*(1/tau_lpf)];
+% soundSpectrum contains the outputs of the sounddata after being sent
+% through each bandpass filter.
 
-b = [0 1/tau_lpf 0];
+soundSpectrum = [];
 
-sys = tf(b,a);
+for k = 1:length(f(:,1))
+    for i = 1:2
+        out = lsim(B(k,:), A(k,:), sounddata(i,:),t);
+        soundSpectrum = cat(2,soundSpectrum,out);
+    end
+end
 
-freqs(b,a);
+soundSpectrum = soundSpectrum';
 
-%% 
-a = conv(a,a);
-b = conv(b,b);
-
-freqs(b,a);
-%% Sound Test
-
-[sounddata, Fs] = audioread("sample-3s.mp3");
-
-%%
-
-%t = 0:1/Fs:(length(sounddata)-1)/Fs;
-
-%sounddata = sounddata';
-
-treble_test_1 = lsim(b,a,sounddata(1,:),t);
-
-%%
-
-treble_test_2 = lsim(b,a,sounddata(2,:)',t);
-
-%%
-
-treble_test = cat(2,treble_test_1, treble_test_2);
-
-sound(treble_test, Fs);
-
-%lsim(b,a,)
