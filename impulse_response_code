@@ -1,0 +1,16 @@
+%% Question 2 c
+
+close all;
+
+t = 0: 1/44100:1;
+x = zeros(size(t));
+x(1) = 1;
+
+
+for k = 1:length(f(:,1))
+    LPF_RESP = lsim([0 1/(R.*CL(k))], [1 1/(R.*CL(k))], x, t);
+    HPF_RESP = lsim([1 0], [1 1/(R.*CL(k))], x, t);
+    result = lsim(B(k,:), A(k,:), x, t);
+    figure("Name", " Impulse response for freq range " + k);
+    plot(t(1:20), result(1:20), t(1:20), LPF_RESP(1:20),t(1:20), HPF_RESP(1:20)), xlabel("Time (seconds)");
+end
