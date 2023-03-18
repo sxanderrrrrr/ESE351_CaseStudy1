@@ -18,11 +18,11 @@ function soundSpectrum = frequencyParser(sounddata, Fs)
     % f is frequency ranges in Hz. 
     % Each row is a diff range.
 
-    f = [20,  250 %    Sub-Bass 
-        250, 500; %    Bass
-        500, 2000; %   Midrange
-        2000, 4000; %  Higher Midrange
-        6000, 20000];% Treble
+    f = [20,  250       % Sub-Bass 
+        250, 500;       % Bass
+        500, 2000;      % Midrange
+        2000, 4000;     % Higher Midrange
+        6000, 20000];   % Treble
     % We fix resistance and solve capacitance based off of the cut off
     % frequencies of the different ranges
 

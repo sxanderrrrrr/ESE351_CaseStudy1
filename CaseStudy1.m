@@ -2,13 +2,14 @@
 
 %% Control Panel 
 
-filename = 'Blue in Green with Siren.wav';
+% filename = 'Space Station - Treble Cut.wav';
+filename = 'Blue in Green with Siren.wav'; 
 
 equalizer_setting = 5;
 
 [sounddata, Fs] = audioread(filename); 
 profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
-sound(profilerOutput, Fs); 
+% sound(profilerOutput, Fs);
 
 %% ----------------------- USER NO TOUCHING BELOW HERE ---------------------
 
@@ -22,7 +23,7 @@ sound(profilerOutput, Fs);
     [sounddata, Fs] = audioread(filename);
     equalizer_setting = 1; 
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
-    sound(sounddata, Fs);  
+%     sound(sounddata, Fs);  
 
 % Space Station FFT 
     f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
@@ -36,7 +37,7 @@ sound(profilerOutput, Fs);
     [sounddata, Fs] = audioread('Giant Steps Bass Cut.wav');
     equalizer_setting = 2; 
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
-    sound(profilerOutput, Fs); 
+%     sound(profilerOutput, Fs); 
 
 % Giant Steps Bass Cut
     f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
@@ -52,13 +53,13 @@ sound(profilerOutput, Fs);
     equalizer_setting = 1; 
     [sounddata, Fs] = audioread(filename); 
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
-    sound(profilerOutput, Fs); 
+%     sound(profilerOutput, Fs); 
 
 % Treble Boost FFT 
     f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
-    TREBLE = fft(profilerOutput); 
+    FFT = fft(profilerOutput); 
     figure(1); 
-    plot(f, abs(TREBLE)); 
+    plot(f, abs(FFT)); 
     xlabel('f, Hz'); 
     ylabel('|X(f)|');
     title('FFT of Treble Boost Preset');
@@ -73,7 +74,7 @@ sound(profilerOutput, Fs);
     equalizer_setting = 2; 
     [sounddata, Fs] = audioread(filename); 
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
-    sound(profilerOutput, Fs); 
+%     sound(profilerOutput, Fs); 
 
 % Bass Boost FFT
     f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
@@ -93,7 +94,7 @@ sound(profilerOutput, Fs);
     equalizer_setting = 3; 
     [sounddata, Fs] = audioread(filename); 
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
-    sound(profilerOutput, Fs);
+%     sound(profilerOutput, Fs);
  
 % Unity FFT
     f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
@@ -113,7 +114,7 @@ sound(profilerOutput, Fs);
     equalizer_setting = 4; 
     [sounddata, Fs] = audioread(filename); 
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
-    sound(profilerOutput, Fs);
+%     sound(profilerOutput, Fs);
 
 % Custom Preset FFT
     f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);

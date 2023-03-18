@@ -132,7 +132,7 @@ figure("Name", "Filtering Out the Siren Preset");
     axis tight, end 
 
 %% Custom Preset
-profilerOutput = 2.*hh(1, :) + 0.001.*hh(2, :) + 0.001.*hh(3, :) + 0.001.*hh(4, :) + 2.*hh(5, :);
+profilerOutput = 2.*hh(1, :) + 0.5.*hh(2, :) + 0.*hh(3, :) + 0.*hh(4, :) + 2.5.*hh(5, :);
 
 figure("Name", " Custom Preset Frequency Response");
     subplot(2,1,1), plot(0:2.*pi*44100, 20*log10(abs(profilerOutput))), xlabel('Frequency (rad/s)'), ylabel('Magnitude');
@@ -159,10 +159,59 @@ end
 t = 0: 1/44100:1;
 x = zeros(size(t));
 x(1) = 1;
-
-A = sum(A); 
-B = sum(B); 
-
-total_response = lsim(B, A, x, t); 
-figure(); 
-plot(t, total_response); 
+ 
+%for treble boost
+A_t = [A(1,:) ; 0.7.*A(2,:) ; 0.00006.*A(3,:) ; 2.*A(4,:) ; 5.*A(5,:)];
+B_t = [B(1,:) ; 0.7.*B(2,:) ; 0.00006.*B(3,:) ; 2.*B(4,:) ; 5.*B(5,:)];
+ 
+A_t = sum(A_t);
+B_t = sum(B_t);
+ 
+total_response = lsim(sum(B), A_t, x, t);
+figure,
+plot(t,total_response)
+title('total frequency response for treble preset')
+ 
+%for bass boost
+A_b = [A(1,:) ; 5.*A(2,:) ; A(3,:) ; 0.1.*A(4,:) ; A(5,:)];
+B_b = [B(1,:) ; 5.*B(2,:) ; B(3,:) ; 0.1.*B(4,:) ; B(5,:)];
+ 
+A_b = sum(A_b);
+B_b = sum(B_b);
+figure,
+total_response = lsim(B_b, A_b, x, t);
+plot(t,total_response)
+title('total frequency response for bass preset')
+ 
+%for unity boost
+A_u = [A(1,:) ; 0.6.*A(2,:) ; 0.6.*A(3,:) ; 0.8.*A(4,:) ; 0.7.*A(5,:)];
+B_u = [B(1,:) ; 0.6.*B(2,:) ; 0.6.*B(3,:) ; 0.8.*B(4,:) ; 0.7.*B(5,:)];
+ 
+A_u = sum(A_u);
+B_u = sum(B_u);
+figure,
+total_response = lsim(B_u, A_u, x, t);
+plot(t,total_response)
+title('total frequency response for unity preset')
+ 
+%for siren filter
+A_s = [2.*A(1,:) ; 0.5.*A(2,:) ; 0.001.*A(3,:) ; 0.001.*A(4,:) ; 1.3.*A(5,:)];
+B_s = [2.*B(1,:) ; 0.5.*B(2,:) ; 0.001.*B(3,:) ; 0.001.*B(4,:) ; 1.3.*B(5,:)];
+ 
+A_s = sum(A_s);
+B_s = sum(B_s);
+figure;
+total_response = lsim(B_s, A_s, x, t);
+plot(t,total_response)
+title('total frequency response for siren filtering preset')
+ 
+%for custom preset
+A_c = [2.*A(1,:) ; 0.5.*A(2,:) ; 0.*A(3,:) ; 0.*A(4,:) ; 2.5.*A(5,:)];
+B_c = [2.*B(1,:) ; 0.5.*B(2,:) ; 0.*B(3,:) ; 0.*B(4,:) ; 2.5.*B(5,:)];
+ 
+A_c = sum(A_c);
+B_c = sum(B_c);
+figure
+total_response = lsim(B_c, A_c, x, t);
+plot(t,total_response)
+title("total frequency response for custom preset") 
