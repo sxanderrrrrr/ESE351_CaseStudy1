@@ -1,105 +1,147 @@
-%% Case Study 1
-% Authors: Xander Schmit, Nicole Ejedimu, Mary Butler
-% Collaborators:
-% Date: 
-% Work Log
-% Who               When
-% Xander & Nicole   02/28 10:45 am - 12:15 pm
-% Xander, Mary, Nicole 02/03 2:30 - 5:00 pm
-% Xander, Mary, Nicole 02/04 10 am - 1:00 pm
-% Xander & Mary 02/07 8 am - ...
+%% Case Study 1 Main File
+
 %% Control Panel 
 
 filename = 'Blue in Green with Siren.wav';
 
-% Sound profiles include: 1 - Treble boost, 2 - Bass boost, 3 - Unity, 4 -
-% Siren filter, 5 - Enhancement preset
+equalizer_setting = 5;
 
-equalizer_setting = 3;
+[sounddata, Fs] = audioread(filename); 
+profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
+sound(profilerOutput, Fs); 
 
-% ----------------------- USER NO TOUCHING BELOW HERE ---------------------
+%% ----------------------- USER NO TOUCHING BELOW HERE ---------------------
 
 % soundDataSpectrum is the sounddata after it has been filtered by the
 % various LPF - HPF systems. Rows 1 & 2 correspond to low bass. Rows 3&4
 % correspond to bass. Row 5&6 correspond to low midrange. Row 7&8
 % correspond to midrange. Row 9&10 correspond to treble.
 
+%% Space Station - Treble Cut
+    filename = 'Space Station - Treble Cut.wav';
+    [sounddata, Fs] = audioread(filename);
+    equalizer_setting = 1; 
+    profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
+    sound(profilerOutput, Fs);  
 
-[sounddata, Fs] = audioread(filename);
+% Space Station FFT 
+    f = [0:length(sounddata)-1]*Fs/length(sounddata);
+    SOUNDDATA = fft(sounddata); 
+    figure, plot(f,abs(SOUNDDATA)); 
+    xlabel('f, Hz')
+    ylabel('|X(f)|')
+    title('FFT of Space Station- Treble Cut Audio');
+ 
+%% Giant Steps Bass Cut
+    [sounddata, Fs] = audioread('Giant Steps Bass Cut.wav');
+    equalizer_setting = 2; 
+    profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
+    sound(profilerOutput, Fs); 
 
-
-% %% Space Station - Treble Cut Audio File
-% 
-% [spaceStation, Fs] = audioread('Space Station - Treble Cut.wav');
-% 
-% sound(spaceStation, Fs);
-equalizerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
-% 
-% %% show transform of Space Station
-% f = [0:length(equalizerOutput)-1]*Fs/length(equalizerOutput);
-% SOUNDDATA = fft(equalizerOutput); 
-% figure, plot(f,abs(SOUNDDATA)); 
-% xlabel('f, Hz')
-% ylabel('|X(f)|')
-% 
-% %% Giant Steps Bass Cut
-% 
-% [giantSteps, Fs] = audioread('Giant Steps Bass Cut.wav');
-% 
-% sound(giantSteps, Fs);
-% 
-% %% show transform of Giant Steps Bass Cut
-% 
-% f = [0:length(giantSteps)-1]*Fs/length(giantSteps);
-% GIANTSTEPS = fft(giantSteps); 
-% figure, plot(f,abs(GIANTSTEPS)); 
-% xlabel('f, Hz')
-% ylabel('|X(f)|')
-% 
-% %% SIREN FILTERING
-% 
-% %% Blue in Green with Siren - Audio File
-% 
-% [blueGreen, Fs] = audioread('Blue in Green with Siren.wav');
-% 
-% sound(blueGreen, Fs);
-% 
-% %% show transform of Blue in Green with Siren
-% f = [0:length(blueGreen)-1]*Fs/length(blueGreen);
-% BLUEGREEN = fft(blueGreen); 
-% figure, plot(f,abs(BLUEGREEN)); 
-% xlabel('f, Hz')
-% ylabel('|X(f)|')
-% %% show transform for first second
-% 
-% blueGreenSnip = blueGreen(1.*Fs:5.*Fs);
-% f = [0:length(blueGreenSnip)-1]*Fs/length(blueGreenSnip);
-% BLUEGREENSNIP = fft(blueGreenSnip); 
-% figure, plot(f,abs(BLUEGREENSNIP));
-% ylabel('|X(f)|')
-% pause
-% set(gca,'YScale','log')
-% 
-% %% Attempting to filter the siren
-% 
-sound(equalizerOutput, Fs)
-% 
-% %% show transform for first second
-% 
-% profilerSnip = equalizerOutput(1.*Fs:5.*Fs);
-% f = [0:length(profilerSnip)-1]*Fs/length(profilerSnip);
-% profilerSNIP = fft(profilerSnip); 
-% figure, plot(f,abs(profilerSNIP));
-% ylabel('|X(f)|')
-% pause
-% set(gca,'YScale','log')
+% Giant Steps Bass Cut
+    f = [0:length(sounddata)-1]*Fs/length(sounddata);
+    GIANTSTEPS = fft(sounddata); 
+    figure, plot(f,abs(GIANTSTEPS)); 
+    xlabel('f, Hz');
+    ylabel('|X(f)|'); 
+    title('FFT of Giant Steps Bass Cut Audio');
 
 
+%% Treble Boost Preset
+    filename = 'Space Station - Treble Cut.wav'; 
+    equalizer_setting = 1; 
+    [sounddata, Fs] = audioread(filename); 
+    profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
+    sound(profilerOutput, Fs); 
 
+% Treble Boost FFT 
+    f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
+    TREBLE = fft(profilerOutput); 
+    figure(1); 
+    plot(f, abs(TREBLE)); 
+    xlabel('f, Hz'); 
+    ylabel('|X(f)|');
+    title('FFT of Treble Boost Preset');
+ 
+% Treble Boost Spectrogram
+    sounddata = sounddata'; 
+    figure(); 
+    spectrogram(sounddata(1,:),1024,200,1024,Fs);
 
+%% Bass Boost Preset
+    filename = 'Space Station - Treble Cut.wav';
+    equalizer_setting = 2; 
+    [sounddata, Fs] = audioread(filename); 
+    profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
+    sound(profilerOutput, Fs); 
 
+% Bass Boost FFT
+    f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
+    BASS = fft(profilerOutput); 
+    figure, plot(f,abs(BASS)); 
+    xlabel('f, Hz')
+    ylabel('|X(f)|')
+    title('FFT of Bass Boost Output')
 
-%% Input signal analysis
+% Bass Boost Spectrogram
+    sounddata = sounddata'; 
+    figure(); 
+    spectrogram(sounddata(1,:),1024,200,1024,Fs);
 
+%% Unity Preset
+    filename = 'Space Station - Treble Cut.wav';
+    equalizer_setting = 3; 
+    [sounddata, Fs] = audioread(filename); 
+    profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
+    sound(profilerOutput, Fs);
+ 
+% Unity FFT
+    f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
+    UNITY = fft(profilerOutput); 
+    figure, plot(f,abs(UNITY)); 
+    xlabel('f, Hz')
+    ylabel('|X(f)|')
+    title('FFT of Unity Preset')
 
-%  
+% Unity Spectrogram
+    sounddata = sounddata'; 
+    figure(); 
+    spectrogram(sounddata(1,:),1024,200,1024,Fs);
+
+%% Custom Preset: Filtering Out the Siren
+    filename = 'Blue in Green with Siren.wav';
+    equalizer_setting = 4; 
+    [sounddata, Fs] = audioread(filename); 
+    profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs);
+    sound(profilerOutput, Fs);
+
+% Custom Preset FFT
+    f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
+    UNITY = fft(profilerOutput); 
+    figure, plot(f,abs(UNITY)); 
+    xlabel('f, Hz');
+    ylabel('|X(f)|');
+    title('FFT of Filtered Siren Preset');
+
+% Custom Preset Spectrogram
+    sounddata = sounddata'; 
+    figure(); 
+    spectrogram(sounddata(1,:),1024,200,1024,Fs);
+
+%% Custom Preset for new Audio Signal
+    filename = 'Blue in Green with Siren.wav'; 
+    [sounddata, Fs] = audioread(filename); 
+    profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
+    sound(profilerOutput, Fs); 
+
+% Custom Audio FFT
+    f = [0:length(sounddata)-1]*Fs/length(sounddata);
+    SOUNDDATA = fft(sounddata); 
+    figure(1), plot(f,abs(SOUNDDATA)); 
+    xlabel('f, Hz')
+    ylabel('|X(f)|')
+
+% Custom Audio Spectrogram
+    sounddata = sounddata'; 
+    figure(); 
+    spectrogram(sounddata(1,:),1024,200,1024,Fs);

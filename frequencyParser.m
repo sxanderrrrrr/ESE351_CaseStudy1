@@ -68,7 +68,8 @@ function soundSpectrum = frequencyParser(sounddata, Fs)
 
     for k = 1:length(f(:,1))
         for i = 1:2
-            out = lsim(B(k,:), A(k,:), sounddata(i,:),t);
+            sys = tf(B(k,:), A(k,:));
+            out = lsim(sys, sounddata(i,:),t);
             soundSpectrum = cat(2,soundSpectrum,out);
         end
     end
