@@ -22,11 +22,11 @@ sound(profilerOutput, Fs);
     [sounddata, Fs] = audioread(filename);
     equalizer_setting = 1; 
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
-    sound(profilerOutput, Fs);  
+    sound(sounddata, Fs);  
 
 % Space Station FFT 
-    f = [0:length(sounddata)-1]*Fs/length(sounddata);
-    SOUNDDATA = fft(sounddata); 
+    f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
+    SOUNDDATA = fft(profilerOutput); 
     figure, plot(f,abs(SOUNDDATA)); 
     xlabel('f, Hz')
     ylabel('|X(f)|')
@@ -39,8 +39,8 @@ sound(profilerOutput, Fs);
     sound(profilerOutput, Fs); 
 
 % Giant Steps Bass Cut
-    f = [0:length(sounddata)-1]*Fs/length(sounddata);
-    GIANTSTEPS = fft(sounddata); 
+    f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
+    GIANTSTEPS = fft(profilerOutput); 
     figure, plot(f,abs(GIANTSTEPS)); 
     xlabel('f, Hz');
     ylabel('|X(f)|'); 
@@ -64,9 +64,9 @@ sound(profilerOutput, Fs);
     title('FFT of Treble Boost Preset');
  
 % Treble Boost Spectrogram
-    sounddata = sounddata'; 
+%     sounddata = sounddata'; 
     figure(); 
-    spectrogram(sounddata(1,:),1024,200,1024,Fs);
+    spectrogram(profilerOutput(1,:),1024,200,1024,Fs);
 
 %% Bass Boost Preset
     filename = 'Space Station - Treble Cut.wav';
@@ -84,9 +84,9 @@ sound(profilerOutput, Fs);
     title('FFT of Bass Boost Output')
 
 % Bass Boost Spectrogram
-    sounddata = sounddata'; 
+%     sounddata = sounddata'; 
     figure(); 
-    spectrogram(sounddata(1,:),1024,200,1024,Fs);
+    spectrogram(profilerOutput(1,:),1024,200,1024,Fs);
 
 %% Unity Preset
     filename = 'Space Station - Treble Cut.wav';
@@ -104,9 +104,9 @@ sound(profilerOutput, Fs);
     title('FFT of Unity Preset')
 
 % Unity Spectrogram
-    sounddata = sounddata'; 
+%     sounddata = sounddata'; 
     figure(); 
-    spectrogram(sounddata(1,:),1024,200,1024,Fs);
+    spectrogram(profilerOutput(1,:),1024,200,1024,Fs);
 
 %% Custom Preset: Filtering Out the Siren
     filename = 'Blue in Green with Siren.wav';
@@ -124,24 +124,29 @@ sound(profilerOutput, Fs);
     title('FFT of Filtered Siren Preset');
 
 % Custom Preset Spectrogram
-    sounddata = sounddata'; 
+%     sounddata = sounddata'; 
     figure(); 
-    spectrogram(sounddata(1,:),1024,200,1024,Fs);
+    spectrogram(profilerOutput(1,:),1024,200,1024,Fs);
 
 %% Custom Preset for new Audio Signal
-    filename = 'Blue in Green with Siren.wav'; 
+    filename = 'funkBeat.wav';  
     [sounddata, Fs] = audioread(filename); 
+    equalizer_setting = 5;
     profilerOutput = soundProfiler(equalizer_setting, sounddata, Fs); 
-    sound(profilerOutput, Fs); 
+%     sound(profilerOutput, Fs); 
 
 % Custom Audio FFT
-    f = [0:length(sounddata)-1]*Fs/length(sounddata);
-    SOUNDDATA = fft(sounddata); 
+
+    f = [0:length(profilerOutput)-1]*Fs/length(profilerOutput);
+    SOUNDDATA = fft(profilerOutput); 
     figure(1), plot(f,abs(SOUNDDATA)); 
-    xlabel('f, Hz')
-    ylabel('|X(f)|')
+    xlabel('f, Hz');
+    ylabel('|X(f)|');
+    title('FFT of Custom Audio Preset');
 
 % Custom Audio Spectrogram
-    sounddata = sounddata'; 
+%     sounddata = sounddata'; 
     figure(); 
-    spectrogram(sounddata(1,:),1024,200,1024,Fs);
+    spectrogram(profilerOutput(1,:),1024,200,1024,Fs);
+    title('Spectrogram of Custom Audio Preset'); 
+
